@@ -46,7 +46,7 @@
         /* 移除未使用的状态栏样式 */
     </style>
 </head>
-<body class="min-h-screen" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,47,167,0.3)), url('https://source.unsplash.com/1600x900/?super-junior,concert,kpop') center/cover fixed;">
+        <body class="min-h-screen" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,47,167,0.3)), url('https://source.unsplash.com/1600x900/?super-junior,concert,kpop') center/cover fixed;">
     <div class="status-bar"></div>
     <div class="container mx-auto p-0 max-w-full flex flex-col h-screen">
         <header class="bg-white/80 backdrop-blur-sm p-3 sticky top-0 z-10">
@@ -81,7 +81,7 @@
                 sendTextMessage();
             }
         });
-        
+        // 增强版对话处理器
         function sendTextMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
@@ -90,7 +90,7 @@
                 const sendBtn = document.getElementById('send-text');
                 sendBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
                 
-                addMessage(message, 'fan');
+                const fanMsgElement = addMessage(message, 'fan');
                 input.value = '';
                 
                 // 恢复发送按钮
@@ -98,47 +98,68 @@
                     sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
                 }, 500);
                 
-                // 模拟爱豆回复
+                // 分析用户输入生成个性化回复
                 setTimeout(() => {
-                    const responses = {
-                        idol: [
-                            "呀！这么热情是想让我中暑吗？💙",
-                            "Super Junior能红这么久当然是因为有我在啊",
-                            "说爱我之前先照照镜子吧~",
-                            "演唱会门票都抢不到还好意思说是我粉丝？",
-                            "保持健康？你先管好自己吧，我看你黑眼圈比我还重",
-                            "新歌<在光化门>听了没？没听的话现在立刻马上！",
-                            "Sapphire blue是什么颜色都不知道？不合格！",
-                            // 新增素材
-                            "应援棒都拿反了还说是我的粉丝？",
-                            "我的solo专辑买了没？没买就闭嘴",
-                            "连我的生日都记错？回去重修粉丝课程吧",
-                            "应援口号都喊错，你是黑粉吧？"
-                        ],
-                        daily: [
-                            "天气好关我什么事？我又不能出去玩",
-                            "练歌？你以为主唱这么好当吗？",
-                            "电视剧？我演的你看过几部？",
-                            "泡菜汤？你做的那叫泔水吧",
-                            "保龄球？你这种水平还是在家打游戏吧",
-                            "看书？你先能坚持看完一本再说",
-                            "《请回答1988》？我出场那集看了20遍没？",
-                            "狗都比你听话，至少不会半夜发消息吵我"
-                        ],
-                        food: [
-                            "大酱汤都不会做还敢说喜欢韩国料理？",
-                            "火锅？辣度没到变态辣就别叫我",
-                            "冰的食物？你是想毁了我的嗓子吗？",
-                            "蜂蜜黄油薯片？那一包是我的别动！",
-                            "冷面都不会煮？建议直接点外卖"
-                        ],
-                        music: [
-                            "新专辑？买了100张再跟我说话",
-                            "练歌8小时？你试试看能坚持8分钟吗？",
-                            "音乐重要还是我重要？...这还用问？",
-                            "舞台上的幸福你这种观众懂什么"
-                        ]
-                    };
+                    let response = generateKyuhyunResponse(message);
+                    const messageElement = addMessage(response, 'idol');
+                    
+                    // 计算显示时间（每字80ms + 基础300ms）
+                    const displayDuration = Math.min(2500, Math.max(800, response.length * 80 + 300));
+                    speak(response, 150); // 提前150ms开始语音
+                    typewriterEffect(messageElement, response, displayDuration);
+                }, 800); // 稍微增加思考时间
+
+                // 为粉丝消息也添加打字效果
+                typewriterEffect(fanMsgElement, message, Math.min(2000, message.length * 60 + 300));
+            }
+        }
+
+        // 智能回复生成器
+        function generateKyuhyunResponse(userInput) {
+            const responseTemplates = {
+                greeting: [
+                    text => `呀！${text.includes('欧巴') ? '叫这么亲热想干嘛？' : '这么正式是要面试吗？'} 💙`,
+                    text => `${text.toLowerCase().includes('hi') ? '英文不错嘛~不过我是韩国人！' : '打招呼都不会？看看我的综艺学学！'}`
+                ],
+                question: [
+                    (text, keyword) => `问${keyword}？你自己不会查维基吗？`,
+                    (text, keyword) => `关于${keyword}...你确定你想知道的不是我的三围？`
+                ],
+                compliment: [
+                    text => `现在才发${text.includes('帅') ? '现我帅' : '现我好'}？你反射弧绕地球几圈了？`,
+                    text => `${text.includes('喜欢') ? '这种表白我每天收800条' : '夸人能不能有点创意？'}`
+                ],
+                default: [
+                    text => `你发"${text.length > 10 ? text.substring(0,8)+'...' : text}"是想测试我智商吗？`,
+                    text => `Super Junior的歌词都${text.length%2===0 ? '比这有意义' : '比这好听'}`
+                ]
+            };
+
+            // 关键词检测
+            const lowerInput = userInput.toLowerCase();
+            let category = 'default';
+            let keyword = '';
+
+            if (/你好|嗨|hello|hi/.test(lowerInput)) {
+                category = 'greeting';
+            } 
+            else if (/(吗|\?|？|什么|怎么|为什么|谁|哪|几时)/.test(lowerInput)) {
+                category = 'question';
+                const matches = userInput.match(/(怎么|如何|什么|为什么|谁|哪|几时)(.*?)(吗|\?|？|$)/);
+                keyword = matches ? matches[2].trim() : '';
+            }
+            else if (/帅|可爱|喜欢|爱|棒/.test(lowerInput)) {
+                category = 'compliment';
+            }
+
+            // 选择回复模板
+            const templates = responseTemplates[category];
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            
+            return typeof template === 'function' 
+                ? template(userInput, keyword)
+                : template;
+        }
 
                     // 根据用户消息类型选择回复类别
                     let category = 'idol';
@@ -178,11 +199,16 @@
         // 移除语音识别功能
         
         // 音频素材映射表
+        // 增强版音频映射
         const audioMap = {
-            "谢谢": "C:/Users/dongy/Desktop/kyu_material/audio/thanks.mp3",
-            "爱你": "C:/Users/dongy/Desktop/kyu_material/audio/love.mp3",
-            "音乐": "C:/Users/dongy/Desktop/kyu_material/audio/music.mp3",
-            "演唱会": "C:/Users/dongy/Desktop/kyu_material/audio/concert.mp3"
+            "谢谢": "file:///C:/Users/dongy/Desktop/kyu_material/audio/thanks.mp3",
+            "爱你": "file:///C:/Users/dongy/Desktop/kyu_material/audio/love.mp3",
+            "音乐": "file:///C:/Users/dongy/Desktop/kyu_material/audio/music.mp3",
+            "演唱会": "file:///C:/Users/dongy/Desktop/kyu_material/audio/concert.mp3",
+            "欧巴": "file:///C:/Users/dongy/Desktop/kyu_material/audio/oppa.mp3",
+            "圭贤": "file:///C:/Users/dongy/Desktop/kyu_material/audio/name.mp3",
+            "新歌": "file:///C:/Users/dongy/Desktop/kyu_material/audio/newsong.mp3",
+            "综艺": "file:///C:/Users/dongy/Desktop/kyu_material/audio/variety.mp3"
         };
 
         // 增强版语音输出
