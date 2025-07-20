@@ -10,33 +10,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #8B00FF; /* Super Junior标志性蓝色 */
-            --secondary-color: #00BFFF;
+            --primary-color: #007AFF; /* 微信风格宝蓝色 */
+            --secondary-color: #5AC8FA;
+            --wechat-bg: #EDEDED;
         }
         body {
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
         }
         .message-bubble {
-            max-width: 75%;
-            border-radius: 1.25rem;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.75rem;
+            max-width: 70%;
+            padding: 8px 12px;
+            margin-bottom: 12px;
             position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             word-break: break-word;
+            font-size: 16px;
+            line-height: 1.4;
         }
         .fan-message {
             background-color: white;
-            border-bottom-left-radius: 0.25rem;
+            border-radius: 4px 18px 18px 4px;
             align-self: flex-start;
-            border: 1px solid #f0f0f0;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            margin-right: 30%;
         }
         .idol-message {
             background-color: var(--primary-color);
             color: white;
-            border-bottom-right-radius: 0.25rem;
+            border-radius: 18px 4px 4px 18px;
             align-self: flex-end;
+            margin-left: 30%;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
         .status-bar {
             height: env(safe-area-inset-top);
@@ -44,7 +48,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-[#EDEDED] min-h-screen" style="background-color: var(--wechat-bg)">
     <div class="status-bar"></div>
     <div class="container mx-auto p-0 max-w-full flex flex-col h-screen">
         <header class="bg-white p-4 border-b border-gray-200 sticky top-0 z-10">
@@ -61,7 +65,7 @@
             </div>
         </header>
         
-        <div id="chat-container" class="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div id="chat-container" class="flex-1 overflow-y-auto p-3" style="background-color: var(--wechat-bg)">
             <!-- 聊天消息将在这里动态生成 -->
             <div class="text-center text-xs text-gray-400 my-4">
                 今天 14:30
@@ -126,16 +130,53 @@
                 
                 // 模拟爱豆回复
                 setTimeout(() => {
-                    const responses = [
-                        "谢谢E.L.F的支持！💙",
-                        "我们Super Junior会一直走花路的！",
-                        "圭贤爱你哟~",
-                        "下次演唱会见吧！",
-                        "保持健康，我们很快会见面的！",
-                        "记得听我的新歌<在光化门>哦！",
-                        "Sapphire blue forever！"
-                    ];
-                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    const responses = {
+                        idol: [
+                            "谢谢E.L.F的支持！💙",
+                            "我们Super Junior会一直走花路的！",
+                            "圭贤爱你哟~",
+                            "下次演唱会见吧！",
+                            "保持健康，我们很快会见面的！",
+                            "记得听我的新歌<在光化门>哦！",
+                            "Sapphire blue forever！"
+                        ],
+                        daily: [
+                            "今天天气真好，适合喝杯咖啡呢~",
+                            "我刚练完歌，嗓子有点累但很开心！",
+                            "你最近在看什么电视剧？推荐给我吧",
+                            "我最近在学做菜，最拿手的是泡菜汤",
+                            "周末喜欢和朋友去打保龄球，你要一起吗？",
+                            "睡前都会看会儿书，你喜欢什么类型的书？",
+                            "最近在重温《请回答1988》，真是百看不厌呢",
+                            "你喜欢狗吗？我养了一只可爱的马尔济斯犬"
+                        ],
+                        food: [
+                            "推荐你试试我们韩国的大酱汤，很美味哦！",
+                            "最近迷上了中餐的火锅，辣得很过瘾",
+                            "作为主唱要保护嗓子，所以很少吃太冰的食物",
+                            "最爱的零食是蜂蜜黄油薯片，根本停不下来",
+                            "韩国冷面夏天吃最爽口了，推荐你试试"
+                        ],
+                        music: [
+                            "最近在准备新专辑，希望能给大家带来惊喜",
+                            "练习生时期每天要练歌8小时以上呢",
+                            "音乐是我生命中最重要的一部分",
+                            "在舞台上唱歌是最幸福的事情"
+                        ]
+                    };
+
+                    // 根据用户消息类型选择回复类别
+                    let category = 'idol';
+                    if (message.includes('天气') || message.includes('今天') || message.includes('最近')) {
+                        category = 'daily';
+                    } else if (message.includes('吃') || message.includes('美食') || message.includes('喝')) {
+                        category = 'food';
+                    } else if (message.includes('歌') || message.includes('音乐') || message.includes('唱')) {
+                        category = 'music';
+                    }
+                    
+                    const responseList = responses[category];
+                    const response = responseList[Math.floor(Math.random() * responseList.length)];
                     addMessage(response, 'idol');
                     speak(response); // 语音合成回复
                 }, 1000);
@@ -227,14 +268,34 @@
         
         // 语音合成功能
         function speak(text) {
+            // 法律声明：使用公开采访片段需获得授权
+            const audioFiles = {
+                "谢谢": "kyuhyun_thanks.mp3",
+                "爱你": "kyuhyun_love.mp3",
+                // 其他关键词映射...
+            };
+            
+            // 检查是否有匹配的音频片段
+            for (const [keyword, file] of Object.entries(audioFiles)) {
+                if (text.includes(keyword)) {
+                    const audio = new Audio(`sounds/${file}`);
+                    audio.play().catch(e => console.log("音频播放失败:", e));
+                    return;
+                }
+            }
+            
+            // 默认使用TTS
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'zh-CN';
+                utterance.lang = 'ko-KR'; // 使用韩语语音库
                 utterance.rate = 0.9;
-                utterance.pitch = 1.1;
+                utterance.pitch = 0.95; // 更接近男声
                 speechSynthesis.speak(utterance);
             }
         }
+        
+        // 初始化时加载语音列表
+        speechSynthesis.getVoices();
     </script>
 </body>
 </html>
