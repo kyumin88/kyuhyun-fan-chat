@@ -10,22 +10,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #007AFF; /* 微信风格宝蓝色 */
-            --secondary-color: #5AC8FA;
-            --wechat-bg: #EDEDED;
+            --primary-color: #002FA7; /* 克莱因蓝 */
+            --secondary-color: #3A5FCD;
+            --wechat-bg: #F0F2F5;
         }
         body {
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
         }
         .message-bubble {
-            max-width: 70%;
-            padding: 8px 12px;
-            margin-bottom: 12px;
+            max-width: 75%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
             position: relative;
             word-break: break-word;
-            font-size: 16px;
-            line-height: 1.4;
+            font-size: 17px;
+            line-height: 1.5;
+            backdrop-filter: blur(8px) brightness(0.9);
         }
         .fan-message {
             background-color: white;
@@ -42,27 +43,16 @@
             margin-left: 30%;
             box-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
-        .status-bar {
-            height: env(safe-area-inset-top);
-            background-color: var(--primary-color);
-        }
+        /* 移除未使用的状态栏样式 */
     </style>
 </head>
-<body class="bg-[#EDEDED] min-h-screen" style="background-color: var(--wechat-bg)">
+<body class="min-h-screen" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,47,167,0.3)), url('https://source.unsplash.com/1600x900/?super-junior,concert,kpop') center/cover fixed;">
     <div class="status-bar"></div>
     <div class="container mx-auto p-0 max-w-full flex flex-col h-screen">
-        <header class="bg-white p-4 border-b border-gray-200 sticky top-0 z-10">
-            <div class="flex items-center justify-between">
-                <button class="text-gray-600">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <h1 class="text-lg font-semibold text-center text-blue-600">
-                    <i class="fas fa-star mr-2 text-yellow-400"></i>圭贤小助手
-                </h1>
-                <button class="text-gray-600">
-                    <i class="fas fa-ellipsis-v"></i>
-                </button>
-            </div>
+        <header class="bg-white/80 backdrop-blur-sm p-3 sticky top-0 z-10">
+            <h1 class="text-lg font-bold text-center text-blue-600">
+                <i class="fas fa-heart mr-2 text-red-500"></i>你的圭贤在这里
+            </h1>
         </header>
         
         <div id="chat-container" class="flex-1 overflow-y-auto p-3" style="background-color: var(--wechat-bg)">
@@ -72,33 +62,13 @@
             </div>
         </div>
         
-        <div class="bg-white border-t border-gray-200 p-3 sticky bottom-0">
-            <div class="flex items-center space-x-2">
-                <button class="text-gray-500 p-2">
-                    <i class="fas fa-plus"></i>
+        <div class="bg-white/90 backdrop-blur-sm border-t border-gray-200 p-3 fixed bottom-0 left-0 right-0">
+            <div class="flex items-center gap-2 max-w-2xl mx-auto">
+                <input type="text" id="message-input" placeholder="和圭贤欧巴聊天..." 
+                    class="flex-1 border-0 rounded-full px-4 py-3 focus:outline-none bg-gray-100 text-base shadow-inner">
+                <button id="send-text" class="bg-red-500 text-white p-3 rounded-full aspect-square flex items-center justify-center shadow-lg">
+                    <i class="fas fa-paper-plane text-lg"></i>
                 </button>
-                <input type="text" id="message-input" placeholder="输入消息..." 
-                    class="flex-1 border rounded-full px-4 py-2 focus:outline-none bg-gray-100">
-                <button id="record-voice" class="text-gray-500 p-2">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button id="send-text" class="bg-red-500 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="flex justify-around pt-2 text-xs text-gray-500">
-                <div class="text-center">
-                    <i class="fas fa-home block text-lg"></i>
-                    <span>首页</span>
-                </div>
-                <div class="text-center">
-                    <i class="fas fa-comment block text-lg"></i>
-                    <span>消息</span>
-                </div>
-                <div class="text-center">
-                    <i class="fas fa-user block text-lg"></i>
-                    <span>我的</span>
-                </div>
             </div>
         </div>
     </div>
@@ -106,11 +76,11 @@
     <script>
         // 基础交互逻辑将在这里实现
         document.getElementById('send-text').addEventListener('click', sendTextMessage);
-        document.getElementById('record-voice').addEventListener('mousedown', startRecording);
-        document.getElementById('record-voice').addEventListener('mouseup', stopRecording);
-        
-        let recognition;
-        let isRecording = false;
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendTextMessage();
+            }
+        });
         
         function sendTextMessage() {
             const input = document.getElementById('message-input');
@@ -132,36 +102,41 @@
                 setTimeout(() => {
                     const responses = {
                         idol: [
-                            "谢谢E.L.F的支持！💙",
-                            "我们Super Junior会一直走花路的！",
-                            "圭贤爱你哟~",
-                            "下次演唱会见吧！",
-                            "保持健康，我们很快会见面的！",
-                            "记得听我的新歌<在光化门>哦！",
-                            "Sapphire blue forever！"
+                            "呀！这么热情是想让我中暑吗？💙",
+                            "Super Junior能红这么久当然是因为有我在啊",
+                            "说爱我之前先照照镜子吧~",
+                            "演唱会门票都抢不到还好意思说是我粉丝？",
+                            "保持健康？你先管好自己吧，我看你黑眼圈比我还重",
+                            "新歌<在光化门>听了没？没听的话现在立刻马上！",
+                            "Sapphire blue是什么颜色都不知道？不合格！",
+                            // 新增素材
+                            "应援棒都拿反了还说是我的粉丝？",
+                            "我的solo专辑买了没？没买就闭嘴",
+                            "连我的生日都记错？回去重修粉丝课程吧",
+                            "应援口号都喊错，你是黑粉吧？"
                         ],
                         daily: [
-                            "今天天气真好，适合喝杯咖啡呢~",
-                            "我刚练完歌，嗓子有点累但很开心！",
-                            "你最近在看什么电视剧？推荐给我吧",
-                            "我最近在学做菜，最拿手的是泡菜汤",
-                            "周末喜欢和朋友去打保龄球，你要一起吗？",
-                            "睡前都会看会儿书，你喜欢什么类型的书？",
-                            "最近在重温《请回答1988》，真是百看不厌呢",
-                            "你喜欢狗吗？我养了一只可爱的马尔济斯犬"
+                            "天气好关我什么事？我又不能出去玩",
+                            "练歌？你以为主唱这么好当吗？",
+                            "电视剧？我演的你看过几部？",
+                            "泡菜汤？你做的那叫泔水吧",
+                            "保龄球？你这种水平还是在家打游戏吧",
+                            "看书？你先能坚持看完一本再说",
+                            "《请回答1988》？我出场那集看了20遍没？",
+                            "狗都比你听话，至少不会半夜发消息吵我"
                         ],
                         food: [
-                            "推荐你试试我们韩国的大酱汤，很美味哦！",
-                            "最近迷上了中餐的火锅，辣得很过瘾",
-                            "作为主唱要保护嗓子，所以很少吃太冰的食物",
-                            "最爱的零食是蜂蜜黄油薯片，根本停不下来",
-                            "韩国冷面夏天吃最爽口了，推荐你试试"
+                            "大酱汤都不会做还敢说喜欢韩国料理？",
+                            "火锅？辣度没到变态辣就别叫我",
+                            "冰的食物？你是想毁了我的嗓子吗？",
+                            "蜂蜜黄油薯片？那一包是我的别动！",
+                            "冷面都不会煮？建议直接点外卖"
                         ],
                         music: [
-                            "最近在准备新专辑，希望能给大家带来惊喜",
-                            "练习生时期每天要练歌8小时以上呢",
-                            "音乐是我生命中最重要的一部分",
-                            "在舞台上唱歌是最幸福的事情"
+                            "新专辑？买了100张再跟我说话",
+                            "练歌8小时？你试试看能坚持8分钟吗？",
+                            "音乐重要还是我重要？...这还用问？",
+                            "舞台上的幸福你这种观众懂什么"
                         ]
                     };
 
@@ -177,8 +152,12 @@
                     
                     const responseList = responses[category];
                     const response = responseList[Math.floor(Math.random() * responseList.length)];
-                    addMessage(response, 'idol');
-                    speak(response); // 语音合成回复
+                    const messageElement = addMessage(response, 'idol');
+                    
+                    // 优化后的同步参数（每字80ms + 基础300ms）
+                    const displayDuration = Math.min(2500, Math.max(800, response.length * 80 + 300));
+                    speak(response, 150); // 固定150ms延迟启动语音
+                    typewriterEffect(messageElement, response, displayDuration);
                 }, 1000);
             }
         }
@@ -187,110 +166,84 @@
             const chatContainer = document.getElementById('chat-container');
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message-bubble', `${sender}-message`);
-            messageDiv.textContent = text;
-            
-            // 添加时间戳
-            const timeDiv = document.createElement('div');
-            const now = new Date();
-            const timeString = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-            timeDiv.textContent = timeString;
-            timeDiv.classList.add('text-xs', 'mt-1', 'text-right', 'opacity-70');
-            if(sender === 'fan') {
-                timeDiv.classList.add('text-gray-500');
-            } else {
-                timeDiv.classList.add('text-white');
-            }
-            
-            messageDiv.appendChild(timeDiv);
-            chatContainer.appendChild(messageDiv);
             
             // 滚动到底部
             setTimeout(() => {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }, 50);
+            
+            return messageDiv;
         }
         
-        // 语音识别功能
-        function startRecording() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert('您的浏览器不支持语音识别功能');
-                return;
-            }
+        // 移除语音识别功能
+        
+        // 音频素材映射表
+        const audioMap = {
+            "谢谢": "C:/Users/dongy/Desktop/kyu_material/audio/thanks.mp3",
+            "爱你": "C:/Users/dongy/Desktop/kyu_material/audio/love.mp3",
+            "音乐": "C:/Users/dongy/Desktop/kyu_material/audio/music.mp3",
+            "演唱会": "C:/Users/dongy/Desktop/kyu_material/audio/concert.mp3"
+        };
+
+        // 增强版语音输出
+        // 打字机效果函数
+        function typewriterEffect(element, text, duration) {
+            element.textContent = '';
+            let displayedText = '';
+            const startTime = Date.now();
             
-            recognition = new webkitSpeechRecognition();
-            recognition.lang = 'zh-CN';
-            recognition.interimResults = false;
-            
-            recognition.onstart = function() {
-                isRecording = true;
-                const voiceBtn = document.getElementById('record-voice');
-                voiceBtn.classList.remove('text-gray-500');
-                voiceBtn.classList.add('bg-red-500', 'text-white');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                const charsToShow = Math.floor(text.length * progress);
                 
-                // 添加录音动画
-                const pulse = document.createElement('span');
-                pulse.className = 'absolute inset-0 rounded-full bg-red-400 animate-ping opacity-75';
-                voiceBtn.appendChild(pulse);
-            };
-            
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('message-input').value = transcript;
-                sendTextMessage();
-            };
-            
-            recognition.onerror = function(event) {
-                console.error('语音识别错误:', event.error);
-            };
-            
-            recognition.onend = function() {
-                if (isRecording) recognition.start(); // 保持录音状态
-            };
-            
-            recognition.start();
-        }
-        
-        function stopRecording() {
-            if (recognition) {
-                isRecording = false;
-                recognition.stop();
-                const voiceBtn = document.getElementById('record-voice');
-                voiceBtn.classList.remove('bg-red-500', 'text-white');
-                voiceBtn.classList.add('text-gray-500');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                if(charsToShow > displayedText.length) {
+                    displayedText = text.substring(0, charsToShow);
+                    element.textContent = displayedText;
+                }
                 
-                // 移除录音动画
-                const pulse = voiceBtn.querySelector('.animate-ping');
-                if(pulse) voiceBtn.removeChild(pulse);
-            }
-        }
-        
-        // 语音合成功能
-        function speak(text) {
-            // 法律声明：使用公开采访片段需获得授权
-            const audioFiles = {
-                "谢谢": "kyuhyun_thanks.mp3",
-                "爱你": "kyuhyun_love.mp3",
-                // 其他关键词映射...
+                if(progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 添加时间戳
+                    const now = new Date();
+                    const timeString = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    const timeDiv = document.createElement('div');
+                    timeDiv.textContent = timeString;
+                    timeDiv.classList.add('text-xs', 'mt-1', 'text-right', 'opacity-70', 'text-white');
+                    element.appendChild(timeDiv);
+                }
             };
             
-            // 检查是否有匹配的音频片段
-            for (const [keyword, file] of Object.entries(audioFiles)) {
+            animate();
+        }
+
+        function speak(text, delay = 0) {
+            // 优先使用本地音频素材
+            for (const [keyword, path] of Object.entries(audioMap)) {
                 if (text.includes(keyword)) {
-                    const audio = new Audio(`sounds/${file}`);
+                    const audio = new Audio(path);
                     audio.play().catch(e => console.log("音频播放失败:", e));
                     return;
                 }
             }
             
-            // 默认使用TTS
+            // 异步TTS保证与文字同步
             if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ko-KR'; // 使用韩语语音库
-                utterance.rate = 0.9;
-                utterance.pitch = 0.95; // 更接近男声
-                speechSynthesis.speak(utterance);
+                setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ko-KR';
+                    // 动态调整语速匹配文字长度
+                    utterance.rate = Math.min(2.0, Math.max(1.0, 1.8 - (text.length / 80)));
+                    utterance.pitch = 0.95;
+                    utterance.onboundary = (event) => {
+                        if(event.name === 'word') {
+                            const currentText = text.substring(0, event.charIndex);
+                            element.textContent = currentText;
+                        }
+                    };
+                    speechSynthesis.speak(utterance);
+                }, delay);
             }
         }
         
